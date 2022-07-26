@@ -19,7 +19,7 @@ class Grid():
                 self.grid.append(self.lowest_price * ratio**i)
         ## Parameters about trading
         self.start_money = parameters["start_money"]
-        self.storage = 0  # The storage is set to be 0 from the begining
+        self.storage = 0  # The storage is set to be 0 from the beginning
         self.trading_fee_rate = parameters["trading_fee_rate"]
         self.buy_unit = parameters["buy_unit"]
 
