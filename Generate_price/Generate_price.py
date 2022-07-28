@@ -19,3 +19,6 @@ class Generate_price():
         return gp.every_random_walk
 
 
+
+
+
