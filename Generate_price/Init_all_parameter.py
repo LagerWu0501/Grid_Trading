@@ -9,6 +9,7 @@ Binance = {"API_key" : API_key,
 
 binance_client = Client("API_key", "Secret_key")
 
+
 ## Other parameter
 parameters = {
     "grid_number" : 50, #網格數, 建議值 40 ~ 200格
