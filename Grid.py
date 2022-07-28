@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-class Strategy():
+class Grid():
     def __init__(self, parameters):
         ## Parameters about Grids
         self.grid_number = parameters["grid_number"]
@@ -58,10 +58,3 @@ class Strategy():
             grid_position = new_grid_position
         return (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money
 
-class Grid(Strategy):
-    def __init__(self, parameters):
-        super().__init__(parameters)
-    def get_grid_position(self, price):
-        return super().get_grid_position(price)
-    def back_test_longOnly(self, data):
-        return super().back_test_longOnly(data)

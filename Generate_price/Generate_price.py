@@ -20,13 +20,10 @@ class Generate_price():
             para.every_random_walk.append(position) # 把步數資料放入陣列
         return para.every_random_walk
     
-<<<<<<< HEAD
-=======
 
     def Get_historical_kline():
         bars = client.get_historical_klines(symbol = para.symbol, interval = para.timeFrame["hour"]["1h"], start_str = para.startDate, end_str = para.endDate)
         kline_df = pd.DataFrame(bars[:], column = ["timestamp", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume", "number_of_trade", "TBB", "TBQ", "ignore"])
->>>>>>> f15b1f4e736316cc72db3ffdc5dc4daff8c58c22
 
     def Get_historical_kline():
         bars = client.get_historical_klines(symbol = para.symbol, interval = para.timeFrame["hour"]["1h"], start_str = para.startDate, end_str = para.endDate)

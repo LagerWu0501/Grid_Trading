@@ -6,6 +6,9 @@ The package Grid.py is a script that define a grid and it's back testing method.
 If you want to use it, you have to first import it.
 
 In addition to the module "Grid" developed by us, this project also needs to import the python api module of Binance Exchange developed by a third party. User can install it by a command "pip3 install python-binance".
+Here is the official website if you need more information about python-binance: 
+
+https://python-binance.readthedocs.io/en/latest/overview.html
 
 ```py
 import Grid
