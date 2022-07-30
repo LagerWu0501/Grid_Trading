@@ -24,7 +24,11 @@ class Generate_price():
     def Get_historical_kline():
         bars = client.get_historical_klines(symbol = para.symbol, interval = para.timeFrame["hour"]["1h"], start_str = para.startDate, end_str = para.endDate)
         kline_df = pd.DataFrame(bars[:], column = ["timestamp", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume", "number_of_trade", "TBB", "TBQ", "ignore"])
-
-    def Get_historical_kline():
-        bars = client.get_historical_klines(symbol = para.symbol, interval = para.timeFrame["hour"]["1h"], start_str = para.startDate, end_str = para.endDate)
-        kline_df = pd.DataFrame(bars[:], column = ["timestamp", "open", "high", "low", "close", "volume", "close_time", "quote_asset_volume", "number_of_trade", "TBB", "TBQ", "ignore"])
+        kline_df["date"] = pd.to_datetime(test_df["timestamp"], unit = "ms").astype(str)
+        kline_df = kline_df.drop(["timestamp", "close_time", "quote_asset_volume", "number_of_trade", "TBB", "TBQ", "ignore"], axis = 1)
+        kline_df["open"] = pd.to_numeric(kline_df["open"])
+        kline_df["high"] = pd.to_numeric(kline_df["high"])
+        kline_df["low"] = pd.to_numeric(kline_df["low"])
+        kline_df["close"] = pd.to_numeric(kline_df["close"])
+        kline_df["volume"] = pd.to.numeric(kline_df["volume"])
+        
