@@ -46,6 +46,7 @@ class Grid(Strategy):
         # initialize backtest object
         trading_count = 0
         money = self.start_money 
+        guarantee_money = money
         storage = self.start_storage 
 
         buy_index = self.get_lower_line(data["open"][0])
@@ -57,30 +58,58 @@ class Grid(Strategy):
             storage -= money * (self.initial_setup["poriton"]) / data["open"][0]
             money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
         
-
+        guarantee_money_lock = []
         for i in range(len(data)):
             current_upper_index = self.get_higher_line(data["close"][i])
             current_lower_index = self.get_lower_line(data["close"][i])
             while current_upper_index <= buy_index:
                 # buy
-                if (self.trading_logistic == "long" and money >= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)):
-                    storage += self.buy_unit
-                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
-                elif (self.trading_logistic == "short" and storage <= -1 * self.buy_unit):
+                if (self.trading_logistic == "long" or self.trading_logistic == "both"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] < 0):
+                        guarantee_money += -1 * guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+                    elif (guarantee_money < self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)):
+                        break
+                    else:
+                        guarantee_money_lock.append(self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
+                        guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+
                     storage += self.buy_unit
                     money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
 
-                    pass
-                elif (self.trading_logistic == "both"):
-                    pass
-                
+                elif (self.trading_logistic == "short"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] < 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+
+                    storage += self.buy_unit
+                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
 
                 sell_index = buy_index + 1
                 buy_index -= 1
             
             while current_lower_index >= sell_index:
                 # sell
-                
+                if (self.trading_logistic == "short" or self.trading_logistic == "both"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+                    elif (guarantee_money < self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)):
+                        break
+                    else:
+                        guarantee_money_lock.append(-1 * self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
+                        guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+
+                    storage += self.buy_unit
+                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+
+                elif (self.trading_logistic == "long"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+
+                    storage += self.buy_unit
+                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
 
                 buy_index = sell_index - 1
                 sell_index += 1
