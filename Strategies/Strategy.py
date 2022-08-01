@@ -4,7 +4,7 @@ import pandas as pd
 
 class Strategy:
     def __init__(self, parameters):
-        ## Parameters for general strategoes
+        ## Parameters for general strategies
         self.name = parameters["name"]
         self.start_money = parameters["start_money"]
         self.start_storage = parameters["start_storage"]
@@ -12,6 +12,5 @@ class Strategy:
         self.buy_unit = parameters["buy_unit"]
 
     def back_test(self, data, parameters = None):
-        pass
 
         
