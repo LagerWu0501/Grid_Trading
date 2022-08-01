@@ -1,8 +1,10 @@
-from calendar import c
-from Strategy import Strategy
-import datetime
+from .Strategy import Strategy
+
 
 class Buy_and_Hold(Strategy):
+    def __init__(self, parameters):
+        super().__init__(parameters)
+
     def back_test(self, data):
         open_price = data["open"][0]
         close_price = data["close"][len(data) - 1]

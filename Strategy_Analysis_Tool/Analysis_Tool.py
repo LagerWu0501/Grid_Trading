@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-# from Strategies import *
-# from Strategies.Strategy import Strategy
-import Strategies
 from Strategies import *
 
 class Analysis_tool():
