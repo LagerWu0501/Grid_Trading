@@ -59,6 +59,8 @@ class Grid(Strategy):
             money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
         
         guarantee_money_lock = []
+        buy_record = [[],[]]
+        sell_record = [[],[]]
         for i in range(len(data)):
             current_upper_index = self.get_higher_line(data["close"][i])
             current_lower_index = self.get_lower_line(data["close"][i])
@@ -74,18 +76,20 @@ class Grid(Strategy):
                         guarantee_money_lock.append(self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
                         guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
 
-                    print("buy")
                     storage += self.buy_unit
                     money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    buy_record[0].append(i)
+                    buy_record[1].append(self.grid[buy_index])
 
                 elif (self.trading_logistic == "short"):
                     if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] < 0):
                         guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
                         guarantee_money_lock.pop()
 
-                        print("buy")
                         storage += self.buy_unit
                         money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        buy_record[0].append(i)
+                        buy_record[1].append(self.grid[buy_index])
 
                 sell_index = buy_index + 1
                 buy_index -= 1
@@ -96,26 +100,28 @@ class Grid(Strategy):
                     if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
                         guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
                         guarantee_money_lock.pop()
-                    elif (guarantee_money < self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)):
+                    elif (guarantee_money < self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)):
                         break
                     else:
-                        guarantee_money_lock.append(-1 * self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
-                        guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        guarantee_money_lock.append(-1 * self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate))
+                        guarantee_money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
 
-                    print("sell")
                     storage += self.buy_unit
-                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    sell_record[0].append(i)
+                    sell_record[1].append(self.grid[sell_index])
 
                 elif (self.trading_logistic == "long"):
                     if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
                         guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
                         guarantee_money_lock.pop()
 
-                        print("sell")
                         storage += self.buy_unit
-                        money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        sell_record[0].append(i)
+                        sell_record[1].append(self.grid[sell_index])
 
                 buy_index = sell_index - 1
                 sell_index += 1
         
-        return (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money, trading_count
+        return (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money, trading_count, buy_record, sell_record
