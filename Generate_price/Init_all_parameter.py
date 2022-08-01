@@ -4,13 +4,14 @@ from binance.client import Client
 API_key = input("Input your API key : ")
 Secret_key = input("Input your Secret key : ")
 
+
 Binance = {"API_key" : API_key,
-           "Secret_key" : Secret_key}
+           "API_secret" : Secret_key}
 
-binance_client = Client("API_key", "Secret_key")
+client = Client(Binance["API_key"], Binance["API_secret"])
 
 
-## Other parameter
+## Grid strategy parameter
 parameters = {
     "grid_number" : 50, #網格數, 建議值 40 ~ 200格
     "expected_ROI_perGrid" : 0.0087, # 預期每網格的報酬率
@@ -21,8 +22,26 @@ parameters = {
     "monte_carlo_simu_num" : 1000 # 每回合蒙地卡羅要模擬的次數
 }
 
-trade_count = 0  # 每個資料集的總交易次數，初始值為0
 
+## Binance API parameter
+symbol = "BTCUSDT"
+coin = "BTC"
+
+# timeFrame([time_scale][time])
+# interval = {"minute" : {"1m" : "1m", "3m" : "3m", "5m" : "5m", "15m" : "15m", "30m" : "30m"},
+#              "hour" : {"1h" : "1h", "2h" : "2h", "4h" : "4h", "6h" : "6h", "8h" : "8h", "12h" : "12h"},
+#              "day" : {"1d" : "1d", "3d" : "3d"},
+#              "week" : {"1w" : "1w"},
+#              "month" : {"1M"}}
+timeFrame = "1h"
+
+
+
+startDate = "2019-07-22"
+endDate = "2022-07-21"
+
+## Other parameter
+trade_count = 0  # 每個資料集的總交易次數，初始值為0
 every_random_walk = []  # 放入每一個走勢變動資料的陣列
 walk_money = []  # 每個走勢變化對於現金變化的陣列
 toSell_list = []  # 策略開啟時的初始值以"上"每一個區間價的陣列
