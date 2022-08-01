@@ -12,5 +12,5 @@ class Strategy:
         self.buy_unit = parameters["buy_unit"]
 
     def back_test(self, data, parameters = None):
-
+        pass
         
