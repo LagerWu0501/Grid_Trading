@@ -1,7 +1,3 @@
-import numpy as np
-import pandas as pd
-
-
 class Strategy:
     def __init__(self, parameters):
         ## Parameters for general strategies
@@ -10,8 +6,9 @@ class Strategy:
         self.start_storage = parameters["start_storage"]
         self.trading_fee_rate = parameters["trading_fee_rate"]
         self.buy_unit = parameters["buy_unit"]
-        self.strategy_object = None
 
-    def back_test(self, data, parameters = None):
+    def back_test(self, data, parameters = None, if_plot = True):
         pass
         
+    def intime_test(self, symbol, timeframe, time_len):
+        pass

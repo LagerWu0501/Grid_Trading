@@ -1,4 +1,5 @@
 from .Strategy import Strategy
+from matplotlib import pyplot as plt
 
 class Grid(Strategy):
     def __init__(self, parameters):
@@ -19,7 +20,6 @@ class Grid(Strategy):
             ratio = (self.highest_price / self.lowest_price)**(1/self.grid_number)
             for i in range(self.grid_number + 1):
                 self.grid.append(self.lowest_price * ratio**i)
-        self.strategy_object = self.grid
 
     def get_lower_line(self, price):
         if (price < self.grid[0]):
@@ -43,7 +43,7 @@ class Grid(Strategy):
                 return line_index
         return line_index
 
-    def back_test(self, data):
+    def back_test(self, data, if_plot = True):
         # initialize backtest object
         trading_count = 0
         money = self.start_money 
@@ -128,4 +128,13 @@ class Grid(Strategy):
                 buy_index = sell_index - 1
                 sell_index += 1
         profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
+        if (if_plot):
+            fig, ax = plt.subplots()
+            ax.set_yticks(self.grid, minor=False)
+            ax.yaxis.grid(True, which = 'major')
+            plt.plot(data["close"], color = "lightsteelblue")
+            plt.scatter(buy_record[0], buy_record[1], color = "black")
+            plt.scatter(sell_record[0], sell_record[1], color = "red")
+            plt.show()
+
         return profit, trading_count, buy_record, sell_record
