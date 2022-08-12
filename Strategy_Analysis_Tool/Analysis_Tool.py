@@ -9,20 +9,10 @@ class Analysis_tool():
         for i in range(0, len(dataset) - window_size, window_off):
             data = dataset.loc[i : i + window_size]
             data.reset_index(inplace = True)
-            profit, _, _, _ = strategy.back_test(data) 
+            profit, _, _, _ = strategy.back_test(data, if_plot = False) 
             profits.append(profit)
         return (np.average(profits) - risk_free_rate) / np.std(profits)
     def MDD():
         pass
     
-    def draw_backtest(strategy, data, profit, trading_count, buy_record, sell_record):
-        fig, ax = plt.subplots()
-        if (strategy.strategy_object != None):
-            ax.set_yticks(strategy.strategy_object, minor=False)
-        ax.yaxis.grid(True, which='major')
-        plt.plot(data["close"], color="lightsteelblue")
-        plt.scatter(buy_record[0], buy_record[1], color="black")
-        plt.scatter(sell_record[0], sell_record[1], color = "red")
-        plt.show()
-        return
 
