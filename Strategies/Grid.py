@@ -19,6 +19,7 @@ class Grid(Strategy):
             ratio = (self.highest_price / self.lowest_price)**(1/self.grid_number)
             for i in range(self.grid_number + 1):
                 self.grid.append(self.lowest_price * ratio**i)
+        self.strategy_object = self.grid
 
     def get_lower_line(self, price):
         if (price < self.grid[0]):
@@ -57,7 +58,6 @@ class Grid(Strategy):
         elif (self.initial_setup["type"] == "short"):
             storage -= money * (self.initial_setup["poriton"]) / data["open"][0]
             money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
-        
         guarantee_money_lock = []
         buy_record = [[],[]]
         sell_record = [[],[]]
@@ -78,6 +78,7 @@ class Grid(Strategy):
 
                     storage += self.buy_unit
                     money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    trading_count += 1
                     buy_record[0].append(i)
                     buy_record[1].append(self.grid[buy_index])
 
@@ -88,6 +89,7 @@ class Grid(Strategy):
 
                         storage += self.buy_unit
                         money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        trading_count += 1
                         buy_record[0].append(i)
                         buy_record[1].append(self.grid[buy_index])
 
@@ -108,6 +110,7 @@ class Grid(Strategy):
 
                     storage += self.buy_unit
                     money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    trading_count += 1
                     sell_record[0].append(i)
                     sell_record[1].append(self.grid[sell_index])
 
@@ -118,10 +121,11 @@ class Grid(Strategy):
 
                         storage += self.buy_unit
                         money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        trading_count += 1
                         sell_record[0].append(i)
                         sell_record[1].append(self.grid[sell_index])
 
                 buy_index = sell_index - 1
                 sell_index += 1
-        
-        return (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money, trading_count, buy_record, sell_record
+        profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
+        return profit, trading_count, buy_record, sell_record
