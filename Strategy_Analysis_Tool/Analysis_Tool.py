@@ -17,10 +17,12 @@ class Analysis_tool():
     
     def draw_backtest(strategy, data, profit, trading_count, buy_record, sell_record):
         fig, ax = plt.subplots()
-        ax.set_yticks(strategy.strategy_object, minor=False)
+        if (strategy.strategy_object != None):
+            ax.set_yticks(strategy.strategy_object, minor=False)
         ax.yaxis.grid(True, which='major')
         plt.plot(data["close"], color="lightsteelblue")
         plt.scatter(buy_record[0], buy_record[1], color="black")
         plt.scatter(sell_record[0], sell_record[1], color = "red")
         plt.show()
+        return
 
