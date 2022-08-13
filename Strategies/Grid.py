@@ -1,5 +1,8 @@
 from .Strategy import Strategy
 from matplotlib import pyplot as plt
+from binance.client import Client
+from datetime import datetime
+import time
 
 class Grid(Strategy):
     def __init__(self, parameters):
@@ -49,18 +52,23 @@ class Grid(Strategy):
         money = self.start_money 
         guarantee_money = money
         storage = self.start_storage 
+        
+        guarantee_money_lock = []
+        buy_record = [[],[]]
+        sell_record = [[],[]]
 
         buy_index = self.get_lower_line(data["open"][0])
         sell_index = self.get_higher_line(data["open"][0])
         if (self.initial_setup["type"] == "long"):
             storage += money * (self.initial_setup["poriton"]) / data["open"][0]
             money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
+            guarantee_money_lock.append(self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
+            guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
         elif (self.initial_setup["type"] == "short"):
             storage -= money * (self.initial_setup["poriton"]) / data["open"][0]
             money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
-        guarantee_money_lock = []
-        buy_record = [[],[]]
-        sell_record = [[],[]]
+            guarantee_money_lock.append(-1 * self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate))
+            guarantee_money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
         for i in range(len(data)):
             current_upper_index = self.get_higher_line(data["close"][i])
             current_lower_index = self.get_lower_line(data["close"][i])
@@ -127,6 +135,7 @@ class Grid(Strategy):
 
                 buy_index = sell_index - 1
                 sell_index += 1
+
         profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
         if (if_plot):
             fig, ax = plt.subplots()
@@ -138,3 +147,132 @@ class Grid(Strategy):
             plt.show()
 
         return profit, trading_count, buy_record, sell_record
+    
+    def intime_test(self, symbol, timeframe, time_len, if_plot = True):
+        # initialize strategy
+        client = Client()
+        trading_count = 0
+        money = self.start_money
+        storage = self.start_storage
+        guarantee_money = money
+        
+        pt = datetime.strptime(timeframe,'%H:%M:%S,%f')
+        timeframe_seconds = pt.second + pt.minute*60 + pt.hour*3600
+        pt = datetime.strptime(time_len,'%H:%M:%S,%f')
+        time_len_seconds = pt.second + pt.minute*60 + pt.hour*3600
+
+        prices = []
+        buy_record = [[],[]]
+        sell_record = [[],[]]
+        guarantee_money_lock = []
+        index = 0
+        # initialize money setup
+        price = float(client.get_ticker(symbol=symbol)["lastPrice"])
+        prices.append(price)
+
+        buy_index = self.get_lower_line(price = price)
+        sell_index = self.get_higher_line(price = price)
+        if (self.initial_setup["type"] == "long" and self.initial_setup["poriton"] > 0):
+            storage += money * (self.initial_setup["poriton"]) / price
+            money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
+            guarantee_money_lock.append(self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
+            guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+            buy_record[0].append(index)
+            buy_record[1].append(self.grid[buy_index])
+            self.print_state(money, storage, price, trading_count, guarantee_money)
+            
+        elif (self.initial_setup["type"] == "short" and self.initial_setup["poriton"] > 0):
+            storage -= money * (self.initial_setup["poriton"]) / price
+            money -= money * (self.initial_setup["poriton"]) * (1 + self.trading_fee_rate)
+            guarantee_money_lock.append(-1 * self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate))
+            guarantee_money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+            sell_record[0].append(index)
+            sell_record[1].append(self.grid[sell_index])
+            self.print_state(money, storage, price, trading_count, guarantee_money)
+        index += 1
+        while time_len_seconds >= timeframe_seconds:
+            time.sleep(timeframe_seconds)
+            time_len_seconds -= timeframe_seconds
+            price = float(client.get_ticker(symbol=symbol)["lastPrice"])
+            prices.append(price)
+
+            current_upper_index = self.get_higher_line(price)
+            current_lower_index = self.get_lower_line(price)
+            while current_upper_index <= buy_index:
+                # buy
+                if (self.trading_logistic == "long" or self.trading_logistic == "both"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] < 0):
+                        guarantee_money += -1 * guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+                    elif (guarantee_money < self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)):
+                        break
+                    else:
+                        guarantee_money_lock.append(self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate))
+                        guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+
+                    storage += self.buy_unit
+                    money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    trading_count += 1
+                    self.print_state(money, storage, price, trading_count, guarantee_money)
+                    buy_record[0].append(index)
+                    buy_record[1].append(self.grid[buy_index])
+
+                elif (self.trading_logistic == "short"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] < 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+
+                        storage += self.buy_unit
+                        money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        trading_count += 1
+                        self.print_state(money, storage, price, trading_count, guarantee_money)
+                        buy_record[0].append(index)
+                        buy_record[1].append(self.grid[buy_index])
+
+                sell_index = buy_index + 1
+                buy_index -= 1
+            
+            while current_lower_index >= sell_index:
+                # sell
+                if (self.trading_logistic == "short" or self.trading_logistic == "both"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+                    elif (guarantee_money < self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)):
+                        break
+                    else:
+                        guarantee_money_lock.append(-1 * self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate))
+                        guarantee_money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+
+                    storage += self.buy_unit
+                    money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                    trading_count += 1
+                    self.print_state(money, storage, price, trading_count, guarantee_money)
+                    sell_record[0].append(index)
+                    sell_record[1].append(self.grid[sell_index])
+
+                elif (self.trading_logistic == "long"):
+                    if (len(guarantee_money_lock) > 0 and guarantee_money_lock[len(guarantee_money_lock) - 1] > 0):
+                        guarantee_money += guarantee_money_lock[len(guarantee_money_lock) - 1]
+                        guarantee_money_lock.pop()
+
+                        storage += self.buy_unit
+                        money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
+                        trading_count += 1
+                        self.print_state(money, storage, price, trading_count, guarantee_money)
+                        sell_record[0].append(index)
+                        sell_record[1].append(self.grid[sell_index])
+
+                buy_index = sell_index - 1
+                sell_index += 1
+            index += 1
+
+        if (if_plot):
+            fig, ax = plt.subplots()
+            ax.set_yticks(self.grid, minor=False)
+            ax.yaxis.grid(True, which = 'major')
+            plt.plot(prices, color = "lightsteelblue")
+            plt.scatter(buy_record[0], buy_record[1], color = "black")
+            plt.scatter(sell_record[0], sell_record[1], color = "red")
+            plt.show()
+        return
