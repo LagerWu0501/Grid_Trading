@@ -179,7 +179,7 @@ class Grid(Strategy):
             guarantee_money -= self.grid[buy_index] * self.buy_unit * (1 + self.trading_fee_rate)
             buy_record[0].append(index)
             buy_record[1].append(self.grid[buy_index])
-            self.print_state(money, storage, price, trading_count, guarantee_money)
+            trading_count += 1
             
         elif (self.initial_setup["type"] == "short" and self.initial_setup["poriton"] > 0):
             storage -= money * (self.initial_setup["poriton"]) / price
@@ -188,8 +188,9 @@ class Grid(Strategy):
             guarantee_money -= self.grid[sell_index] * self.buy_unit * (1 + self.trading_fee_rate)
             sell_record[0].append(index)
             sell_record[1].append(self.grid[sell_index])
-            self.print_state(money, storage, price, trading_count, guarantee_money)
+            trading_count += 1
         index += 1
+        self.print_state(money, storage, price, trading_count, guarantee_money)
         while time_len_seconds >= timeframe_seconds:
             time.sleep(timeframe_seconds)
             time_len_seconds -= timeframe_seconds

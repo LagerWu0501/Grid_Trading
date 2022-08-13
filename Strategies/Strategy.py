@@ -16,18 +16,18 @@ class Strategy:
 
     def print_state(self, current_money, current_storage, current_price, trading_count, guarantee_money = None):
         if (trading_count == 0):
-            print("=====Initial State=====")
+            print("*-------------Initial State-------------*")
         else:
-            print("=======================")
-        print(">> strategy:", self.name)
-        print(">> money:", current_money)
-        print(">> storage:", current_storage)
-        print(">> guarantee money:", guarantee_money)
-        print(">> trading count:", trading_count)
-        print("Total value:", current_money + current_storage * current_price)
-        print("Profit:", (current_money + current_storage * current_price - self.start_money) / self.start_money)
-        print("Current price:", current_price)
-        print("Time:", datetime.now())
+            print("*---------------------------------------*")
+        print("| >> strategy:", self.name)
+        print("| >> money:", current_money)
+        print("| >> storage:", current_storage)
+        print("| >> guarantee money:", guarantee_money)
+        print("| >> trading count:", trading_count)
+        print("| Total value:", current_money + current_storage * current_price)
+        print("| Profit:", (current_money + current_storage * current_price - self.start_money) / self.start_money)
+        print("| Current price:", current_price)
+        print("| Time:", datetime.now())
         print()
         return
 
