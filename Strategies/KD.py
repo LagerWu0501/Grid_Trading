@@ -49,7 +49,7 @@ class KD(Strategy):
         sell_record = [[], []]
         RSV, K, D = self.calculate_KD(data, parameter)
         
-        for i in range(len(K)):
+        for i in range(len(data)):
             if i + 1 >= 9:
                 # Buy
                 if self.enable_to_buy(data, money, i) == True:
