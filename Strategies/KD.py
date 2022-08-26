@@ -52,15 +52,25 @@ class KD(Strategy):
         for i in range(len(K)):
             if i + 1 >= 9:
                 # Buy
-                if self.enable_to_buy(data, money, i) == True and K[i] > D[i]:
-                    money -= data["close"][i] * self.buy_unit * (1 + self.trading_fee_rate) >= 0
-                    storage += self.buy_unit
+                if self.enable_to_buy(data, money, i) == True:
+                    if (K[i] > 80 and D[i] < 20) or (D[i] < 15):
+                        money -= data["close"][i] * self.buy_unit * (1 + self.trading_fee_rate) >= 0
+                        storage += self.buy_unit
+                        buy_record[0].append(i)
+                        buy_record[1].append(data["close"][i])
                 
                 # Sell
-                if storage > 0 and K[i] < D[i]:
-                    money += data["close"][i] * self.buy_unit * (1 - self.trading_fee_rate)
-                    storage -= self.buy_unit
-            
+                if storage > 0:
+                    if (K[i] > 80 and D[i] > 70) or (D[i] > 85):
+                        money += data["close"][i] * self.buy_unit * (1 - self.trading_fee_rate)
+                        storage -= self.buy_unit
+                        sell_record[0].append(i)
+                        sell_record[1].append(data["close"][i])
+                        
+            if if_plot == True:
+                pass
+                
+                
             
     
     def intime_test(self):
