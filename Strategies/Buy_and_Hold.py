@@ -9,6 +9,8 @@ class Buy_and_Hold(Strategy):
         super().__init__(parameters)
 
     def back_test(self, data, if_plot = True):
+        # Just get the price from the beginning and the end of the data.
+        # Buy in the beginning and sell in the end.
         open_price = data["open"][0]
         close_price = data["close"][len(data) - 1]
         diff = close_price - open_price
@@ -21,7 +23,7 @@ class Buy_and_Hold(Strategy):
             plt.show()
         return diff / open_price, 2, [[0], [open_price]], [[len(data) - 1], [close_price]]
     
-    def intime_test(self, symbol, timeframe, time_len, if_plot = True):
+    def realtime_test(self, symbol, timeframe, time_len, if_plot = True):
         # init
         client = Client()
         money = self.start_money
@@ -34,7 +36,7 @@ class Buy_and_Hold(Strategy):
         storage += money / buy_price
         money -= money
         self.print_state(money, storage, buy_price, 1)
-        # sleep
+        # sleep until the timeout
         pt = datetime.strptime(time_len,'%H:%M:%S,%f')
         total_seconds = pt.second + pt.minute*60 + pt.hour*3600
         pt = datetime.strptime(timeframe,'%H:%M:%S,%f')

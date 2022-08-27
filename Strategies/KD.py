@@ -36,7 +36,7 @@ class KD(Strategy):
         
         
     def enable_to_buy(self, data, money, i)->bool:
-        if (money - data["close"][i] * self.buy_unit * (1 + self.trading_fee_rate) >= 0):
+        if (money - data["close"][i] * self.unit * (1 + self.trading_fee_rate) >= 0):
             return True
         else:
             return False
@@ -54,16 +54,16 @@ class KD(Strategy):
                 # Buy
                 if self.enable_to_buy(data, money, i) == True:
                     if (K[i] > 80 and D[i] < 20) or (D[i] < 15):
-                        money -= data["close"][i] * self.buy_unit * (1 + self.trading_fee_rate) >= 0
-                        storage += self.buy_unit
+                        money -= data["close"][i] * self.unit * (1 + self.trading_fee_rate) >= 0
+                        storage += self.unit
                         buy_record[0].append(i)
                         buy_record[1].append(data["close"][i])
                 
                 # Sell
                 if storage > 0:
                     if (K[i] > 80 and D[i] > 70) or (D[i] > 85):
-                        money += data["close"][i] * self.buy_unit * (1 - self.trading_fee_rate)
-                        storage -= self.buy_unit
+                        money += data["close"][i] * self.unit * (1 - self.trading_fee_rate)
+                        storage -= self.unit
                         sell_record[0].append(i)
                         sell_record[1].append(data["close"][i])
                         
@@ -73,6 +73,6 @@ class KD(Strategy):
                 
             
     
-    def intime_test(self):
+    def realtime_test(self):
         pass
         
