@@ -11,6 +11,6 @@ class Analysis_tool():
             data.reset_index(inplace = True)
             profit, _, _, _, _ = strategy.back_test(data, if_plot = False) 
             profits.append(profit)
-        return (np.average(profits) - risk_free_rate) / np.std(profits)
+        return (np.average(profits) - risk_free_rate) / np.std(profits), np.average(profits)
     
 
