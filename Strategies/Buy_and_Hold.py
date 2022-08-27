@@ -21,7 +21,9 @@ class Buy_and_Hold(Strategy):
             plt.scatter([0], [open_price], color = "black")
             plt.scatter([len(data) - 1], [close_price], color = "red")
             plt.show()
-        return diff / open_price, 2, [[0], [open_price]], [[len(data) - 1], [close_price]]
+        max_price = max(open_price, data["close"].max())
+        min_price = min(open_price, data["close"].min())
+        return diff / open_price, 2, [[0], [open_price]], [[len(data) - 1], [close_price]], (max_price - min_price) / max_price
     
     def realtime_test(self, symbol, timeframe, time_len, if_plot = True):
         # init

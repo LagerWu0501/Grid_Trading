@@ -42,7 +42,7 @@ class KD(Strategy):
             return False
 
 
-    def back_test(self, data, parameter, if_plot = TRUE):
+    def back_test(self, data, parameter, if_plot = True):
         money = self.start_money
         storage = self.start_storage
         buy_record = [[], []]

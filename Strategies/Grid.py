@@ -2,6 +2,7 @@ from .Strategy import Strategy
 from matplotlib import pyplot as plt
 from binance.client import Client
 from datetime import datetime
+import numpy as np
 import time
 
 class Grid(Strategy):
@@ -65,6 +66,9 @@ class Grid(Strategy):
         guarantee_money_lock = []
         buy_record = [[],[]]
         sell_record = [[],[]]
+
+        max_profit = 0
+        min_profit = np.inf
 
         buy_index = self.get_lower_line(data["open"][0])
         sell_index = self.get_higher_line(data["open"][0])
@@ -144,6 +148,12 @@ class Grid(Strategy):
 
                 buy_index = sell_index - 1
                 sell_index += 1
+            
+            temp_profit = (money + storage * data["close"][len(data) - 1])
+            if (temp_profit > max_profit):
+                max_profit = temp_profit
+            if (temp_profit < min_profit):
+                min_profit = temp_profit
 
         profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
         if (if_plot):
@@ -155,7 +165,7 @@ class Grid(Strategy):
             plt.scatter(sell_record[0], sell_record[1], color = "red")
             plt.show()
 
-        return profit, trading_count, buy_record, sell_record
+        return profit, trading_count, buy_record, sell_record, (max_profit - min_profit) / max_profit
     
     def realtime_test(self, symbol, timeframe, time_len, if_plot = True):
         # initialize strategy
