@@ -150,7 +150,7 @@ class Grid(Strategy):
                 buy_index = sell_index - 1
                 sell_index += 1
             
-            temp_profit = (money + storage * data["close"][len(data) - 1])
+            temp_profit = (money + storage * data["close"][i])
             if (temp_profit > max_profit):
                 max_profit = temp_profit
                 min_profit = np.inf
