@@ -69,6 +69,7 @@ class Grid(Strategy):
 
         max_profit = 0
         min_profit = np.inf
+        MDD = 0
 
         buy_index = self.get_lower_line(data["open"][0])
         sell_index = self.get_higher_line(data["open"][0])
@@ -152,8 +153,13 @@ class Grid(Strategy):
             temp_profit = (money + storage * data["close"][len(data) - 1])
             if (temp_profit > max_profit):
                 max_profit = temp_profit
+                min_profit = np.inf
             if (temp_profit < min_profit):
                 min_profit = temp_profit
+                if ((max_profit - min_profit) / max_profit > MDD):
+                    MDD = (max_profit - min_profit) / max_profit
+            
+            
 
         profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
         if (if_plot):
@@ -165,7 +171,7 @@ class Grid(Strategy):
             plt.scatter(sell_record[0], sell_record[1], color = "red")
             plt.show()
 
-        return profit, trading_count, buy_record, sell_record, (max_profit - min_profit) / max_profit
+        return profit, trading_count, buy_record, sell_record, MDD
     
     def realtime_test(self, symbol, timeframe, time_len, if_plot = True):
         # initialize strategy
