@@ -13,11 +13,13 @@ class SMA(Strategy):
         self.short_period = parameters["short_period"]
         self.trading_logistic = parameters["trading_logistic"]
         self.trading_unit = parameters["trading_unit"]
+        self.trading_fee = 0
 
     def trade(self, side, price, money, storage):
         amount = 0
         new_money = money
         new_storage = storage
+
         if (self.trading_logistic == "long"):
             if (self.trading_unit == "all_in"):
                 if (side == -1 and storage > 0):
@@ -84,12 +86,14 @@ class SMA(Strategy):
             print("trading logistic error.")
         new_money -= amount * price
         new_storage += amount
+        self.trading_fee += abs(amount * price) * self.trading_fee_rate
 
         # print("n", new_money, new_storage)
         # print("===========================")
-        return new_money, new_storage, price
+        return new_money, new_storage, price, 
 
     def back_test(self, data, parameters=None, if_plot=True):
+        self.trading_fee = 0
         ## All in 
         short_sma = data["close"].rolling(self.short_period).mean()
         long_sma = data["close"].rolling(self.long_period).mean()
@@ -132,7 +136,7 @@ class SMA(Strategy):
                     MDD = (max_profit - min_profit) / max_profit
 
         # print(money, data["close"][len(data) - 1] * storage)
-        profit = ((money + data["close"][len(data) - 1] * storage) - self.start_money - self.start_storage * data["open"][0]) / (self.start_money + self.start_storage * data["open"][0])
+        profit = ((money + data["close"][len(data) - 1] * storage - self.trading_fee) - self.start_money - self.start_storage * data["open"][0]) / (self.start_money + self.start_storage * data["open"][0])
         if (if_plot):
             fig, ax = plt.subplots()
             ax.yaxis.grid(True, which = 'major')
