@@ -80,7 +80,7 @@ class Grid(Strategy):
             guarantee_money -= self.grid[buy_index] * self.unit * (1 + self.trading_fee_rate)
         elif (self.initial_setup["type"] == "short"):
             storage -= money * (self.initial_setup["portion"]) / data["open"][0]
-            money -= money * (self.initial_setup["portion"]) * (1 + self.trading_fee_rate)
+            money += money * (self.initial_setup["portion"]) * (1 + self.trading_fee_rate)
             guarantee_money_lock.append(-1 * self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate))
             guarantee_money -= self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate)
         for i in range(len(data)):
@@ -150,7 +150,7 @@ class Grid(Strategy):
                 buy_index = sell_index - 1
                 sell_index += 1
             
-            temp_profit = (money + storage * data["close"][i])
+            temp_profit = (guarantee_money + storage * data["close"][i])
             if (temp_profit > max_profit):
                 max_profit = temp_profit
                 min_profit = np.inf
