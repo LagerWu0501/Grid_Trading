@@ -17,6 +17,8 @@ class SMA(Strategy):
 
     def trade(self, side, price, money, storage):
         amount = 0
+        money *= (1 - self.trading_fee_rate) 
+        storage *= (1 - self.trading_fee_rate) 
         new_money = money
         new_storage = storage
 
@@ -55,8 +57,14 @@ class SMA(Strategy):
                     amount = self.unit
 
         elif (self.trading_logistic == "both"):
+
             if (self.trading_unit == "all_in"):
                 if (side * storage < 0):
+                    money *= (1 - self.trading_fee_rate) 
+                    storage *= (1 - self.trading_fee_rate) 
+                    new_money = money
+                    new_storage = storage
+
                     temp_money = money + storage * price
                     amount = temp_money / price
                     amount -= side * storage
@@ -84,9 +92,15 @@ class SMA(Strategy):
                         amount -= storage
         else:
             print("trading logistic error.")
+        if (side == -1):
+            sside = "sell"
+        elif (side == 1):
+            sside = "buy"
+        # print("price:", price, "amount:", amount, "side:", sside)
         new_money -= amount * price
         new_storage += amount
-        self.trading_fee += abs(amount * price) * self.trading_fee_rate
+        # new_storage += amount * (1 - self.trading_fee_rate)
+        # self.trading_fee += abs(amount * price) * self.trading_fee_rate
 
         # print("n", new_money, new_storage)
         # print("===========================")
