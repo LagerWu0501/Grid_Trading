@@ -58,3 +58,10 @@ profit = mygrid.back_test_longOnly(data)
 * data: the dataset required while calling "back_test_longOnly" method. **And please make sure that the dataframe contains at least the open price and close price.**
   (example)
   ![](https://i.imgur.com/0ArDwn9.png)
+  
+  
+  
+## contributer
+1. Lager: The implement of all strategies (despite for KD), backtesting methods and analysis.
+2. https://github.com/rslu2000: Some modifications of this README file and some advices about the analysis research.
+3. https://github.com/kuo220: The implement of KD strategy.
