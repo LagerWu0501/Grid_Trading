@@ -130,8 +130,8 @@ class Grid(Strategy):
                         guarantee_money_lock.append(-1 * self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate))
                         guarantee_money -= self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate)
 
-                    storage += self.unit
-                    money -= self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate)
+                    storage -= self.unit
+                    money += self.grid[sell_index] * self.unit * (1 + self.trading_fee_rate)
                     trading_count += 1
                     sell_record[0].append(i)
                     sell_record[1].append(self.grid[sell_index])
@@ -158,8 +158,7 @@ class Grid(Strategy):
                 min_profit = temp_profit
                 if ((max_profit - min_profit) / max_profit > MDD):
                     MDD = (max_profit - min_profit) / max_profit
-            
-            
+
 
         profit = (money + storage * data["close"][len(data) - 1] - self.start_money) / self.start_money 
         if (if_plot):

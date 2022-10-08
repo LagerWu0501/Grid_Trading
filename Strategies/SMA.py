@@ -96,14 +96,10 @@ class SMA(Strategy):
             sside = "sell"
         elif (side == 1):
             sside = "buy"
-        # print("price:", price, "amount:", amount, "side:", sside)
+
         new_money -= amount * price
         new_storage += amount
-        # new_storage += amount * (1 - self.trading_fee_rate)
-        # self.trading_fee += abs(amount * price) * self.trading_fee_rate
-
-        # print("n", new_money, new_storage)
-        # print("===========================")
+       
         return new_money, new_storage, side * price
 
     def back_test(self, data, parameters=None, if_plot=True):
