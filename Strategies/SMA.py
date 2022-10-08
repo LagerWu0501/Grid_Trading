@@ -104,18 +104,23 @@ class SMA(Strategy):
 
         # print("n", new_money, new_storage)
         # print("===========================")
-        return new_money, new_storage, price, 
+        return new_money, new_storage, side * price
 
     def back_test(self, data, parameters=None, if_plot=True):
         self.trading_fee = 0
         ## All in 
         short_sma = data["close"].rolling(self.short_period).mean()
         long_sma = data["close"].rolling(self.long_period).mean()
+
+        self.short_sma = short_sma
+        self.long_sma = long_sma
+
         signal = short_sma > long_sma
         signal = signal.astype(int).diff()
         # signal -- 0 == do nothing, 1 == buy, -1 == sell
         extracted_data = data.loc[(signal != 0) & (~signal.isna())]
         signal = signal[signal != 0].dropna()
+        # print(len(signal), len(extracted_data))
 
         money = self.start_money
         storage = self.start_storage
@@ -134,11 +139,11 @@ class SMA(Strategy):
             money, storage, record = self.trade(signal[i], extracted_data["close"][i], money, storage)
             if (record > 0):
                 buy_record[0].append(i)
-                buy_record[1].append(record)
+                buy_record[1].append(abs(record))
                 trading_count += 1
             elif (record < 0):
                 sell_record[0].append(i)
-                sell_record[1].append(record)
+                sell_record[1].append(abs(record))
                 trading_count += 1
             temp_profit = (money + storage * extracted_data["close"][i])
             if (temp_profit > max_profit):
