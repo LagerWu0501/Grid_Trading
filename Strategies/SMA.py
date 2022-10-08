@@ -95,8 +95,13 @@ class SMA(Strategy):
     def back_test(self, data, parameters=None, if_plot=True):
         self.trading_fee = 0
         ## All in 
-        short_sma = data["close"].rolling(self.short_period).mean()
-        long_sma = data["close"].rolling(self.long_period).mean()
+        if (self.name == "SMA"):
+            short_sma = data["close"].rolling(self.short_period).mean()
+            long_sma = data["close"].rolling(self.long_period).mean()
+        elif (self.name == "EMA"):
+            short_sma = data["close"].ewm(span = self.short_period, adjust = False).mean()
+            long_sma = data["close"].ewm(span = self.long_period, adjust = False).mean()
+
         signal = short_sma > long_sma
         signal = signal.astype(int).diff()
         # signal -- 0 == do nothing, 1 == buy, -1 == sell
